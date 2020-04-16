@@ -1,0 +1,62 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Exerice PHP : https://gist.github.com/f2r/2f1e1fa27186ac670c21d8a0303aabf1
+ *
+ * Solution de Nathanaël Martel
+ */
+require_once 'function.php';
+
+$input_file = $argv[1];
+$aggreate = false;
+$description = false;
+$pretty = false;
+foreach ($argv as $k => $v) {
+    if ('--fields' == $v) {
+        $output_fields = explode(',', $argv[$k + 1]);
+    }
+    if ('--aggregate' == $v) {
+        $aggreate = $argv[$k + 1];
+    }
+    if ('--desc' == $v) {
+        $description = $argv[$k + 1];
+    }
+    if ('--pretty' == $v) {
+        $pretty = true;
+    }
+}
+
+$descriptions_field = getFieldsDescription($description);
+$separator = findSeparator($input_file);
+
+$row = 0;
+$handle = fopen($input_file, 'r');
+while (false !== ($data = fgetcsv($handle, 1000, $separator))) {
+    $num = count($data);
+    ++$row;
+    if (1 == $row) {
+        $fields = $data;
+        $aggregate_id = array_search($aggreate, $fields);
+        $output_fields = getSelectedFieldsDescription($descriptions_field, $output_fields, $fields);
+    } else {
+        for ($c = 0; $c < $num; ++$c) {
+            if (isset($output_fields[$fields[$c]])) {
+                $d[$fields[$c]] = convertData($data[$c], $output_fields[$fields[$c]], $row, $fields[$c]);
+            }
+        }
+        if ((false === $aggregate_id)) {
+            $datas[] = $d;
+        } else {
+            $datas[$data[$aggregate_id]][] = $d;
+        }
+    }
+}
+fclose($handle);
+
+if ($pretty) {
+    echo json_encode($datas, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+} else {
+    echo json_encode($datas);
+}
+echo "\n";

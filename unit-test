@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Exerice PHP : https://gist.github.com/f2r/2f1e1fa27186ac670c21d8a0303aabf1
+ *
+ * Solution de Nathanaël Martel
+ */
+require_once 'function.php';
+
+$tests_results = [
+    'executed_test' => 0,
+    'tests_with_error' => [],
+];
+
+try {
+    gettype(convertData('', ['type' => 'string', 'nullable' => false]));
+} catch (Exception $e) {
+    $tests_results['tests_with_error'][] = 'empty string not nullable';
+}
+++$tests_results['executed_test'];
+
+echo sprintf('Tests executed: %s', $tests_results['executed_test'])."\n\n";
+if (0 == count($tests_results['tests_with_error'])) {
+    echo sprintf('All tests are successful !')."\n";
+} else {
+    echo sprintf('Tests KO: %s', count($tests_results['tests_with_error']))."\n* ";
+    echo implode("\n* ", $tests_results['tests_with_error'])."\n";
+}
